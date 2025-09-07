@@ -57,6 +57,8 @@
 1. 腾讯云 secretId, secretKey 在[腾讯云控制台-访问管理-访问密钥](https://console.cloud.tencent.com/cam/capi) 进行获取或设置。建议通过子账号的形式进行云 API 调用权限授权。
 
 2. 加速域名配置为[腾讯云控制台-内容分发网络](https://console.cloud.tencent.com/cdn/domains)
+   
+3. 如果有SCF云函数配置了自定义域名，在配置文件中scfRegionList填写云函数所在的服务区（如ap-guangzhou、ap-beijing），就可以自动检索指定地区中域名相符且打开了HTTPS服务的云函数并绑定到新证书上。
 
 > 📢 注：`config.custom.js` 里面的字段都可以通过云函数的环境变量形式进行覆盖更新，即同一配置项两边共存情况下环境变量优先。
 
