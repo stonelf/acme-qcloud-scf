@@ -280,6 +280,40 @@ async function postWeComRobotMsg(options) {
             return '发送企业微信机器人成功:' + JSON.stringify(result) + 'H:' + moment().utcOffset(8).format('kk');
         });
 }
+async function updateSCFDomain(region, CertificateId) {
+	const ScfClient = require("tencentcloud-sdk-nodejs-scf").scf.v20180416.Client;
+	const clientConfig = {
+		credential: {
+			secretId: config.qcloudSecretId,
+			secretKey: config.qcloudSecretKey,
+		},
+		region,
+		profile: {
+			httpProfile: {
+				endpoint: "scf.tencentcloudapi.com",
+			},
+		},
+	};
+	const client = new ScfClient(clientConfig);
+	const params = {};
+	return client.ListCustomDomains(params).then(
+		(data) => {
+			domains = data.Domains?.filter(d => /HTTPS/.test(d.Protocol) &&
+      new RegExp(config.domain.replace(/\./g, "\\.") + "$").test(d.Domain));
+			promises = domains?.map((domain) =>
+				client.UpdateCustomDomain({
+					Domain: domain.Domain,
+					Protocol: domain.Protocol,
+					"CertConfig": {
+						CertificateId
+					}
+				})
+			);
+			return Promise.all(promises||[]).then(r =>
+				`${region}区的${r.length}个云函数自定义域名已经更新为新证书${CertificateId}`
+			);
+		})
+}
 
 const main_handler = async (event = {}, context = {}, callback) => {
     const environment = context?.environment || {}
@@ -400,7 +434,13 @@ const main_handler = async (event = {}, context = {}, callback) => {
         log(`Private key:\n${key.toString()}`);
         log(`Certificate:\n${cert.toString()}`);
         const {CertificateId} = await uploadCert2QcloudSSL(cert, key);
-        await updateCDNDomains(cert, key, CertificateId)
+        await updateCDNDomains(cert, key, CertificateId);
+        await Promise.all(
+            config.scfRegionList.map(region =>
+                updateSCFDomain(region, CertificateId).then((data) => {
+                    console.log(data)
+            }))
+        );
     } catch (e) {
         log('Finalize order error: ', e)
         await postWeComRobotMsg({
