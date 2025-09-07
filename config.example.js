@@ -1,5 +1,6 @@
 module.exports = {
     isDebug: true,
+    deleteOldCertificate: false, // 是否删除旧的证书
     email: 'test@example.com',  // 你的邮箱
     domain: 'example.com', // 需要生成证书的根域名，最终生成通配符证书
     qcloudSecretId: '', // 腾讯云 SecretId, https://console.cloud.tencent.com/cam/capi
@@ -8,6 +9,11 @@ module.exports = {
     dnspodToken: 'xxxx,xxxxxxxxxxxxxxxxxxxx', // 在 https://console.dnspod.cn/account/token/token 生成，合在一块用, 隔开
     cdnDomainList: [ // 加速域名配置
         'cdn.example.com'
+    ],
+    scfRegionList:[//需要更新自定义域名的云函数服务区配置
+        // 'ap-guangzhou',
+        // 'ap-shanghai',
+        // 'ap-beijing'
     ],
     wecomWebHook: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=XXXXXXXXXXXXXXXXXXX', // 企业微信机器人通知 webhook
 }

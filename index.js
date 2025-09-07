@@ -200,7 +200,7 @@ async function uploadCert2QcloudSSL(cert, key) {
         }
     ).catch(() => {
     })
-    if (TotalCount && Certificates.length) {
+    if (config.deleteOldCertificate && TotalCount && Certificates.length) {
         await Promise.all(Certificates.map(async item => {
             await sslClient.DeleteCertificate({
                 CertificateId: item.CertificateId
